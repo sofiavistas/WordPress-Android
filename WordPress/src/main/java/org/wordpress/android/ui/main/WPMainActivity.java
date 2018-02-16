@@ -1,5 +1,6 @@
 package org.wordpress.android.ui.main;
 
+import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.app.Fragment;
 import android.content.Intent;
@@ -9,8 +10,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.RemoteInput;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -45,6 +48,7 @@ import org.wordpress.android.ui.ActivityId;
 import org.wordpress.android.ui.ActivityLauncher;
 import org.wordpress.android.ui.RequestCodes;
 import org.wordpress.android.ui.accounts.SignInActivity;
+import org.wordpress.android.ui.contacts.ContactUtils;
 import org.wordpress.android.ui.notifications.NotificationEvents;
 import org.wordpress.android.ui.notifications.NotificationsListFragment;
 import org.wordpress.android.ui.notifications.adapters.NotesAdapter;
@@ -65,9 +69,11 @@ import org.wordpress.android.util.AuthenticationDialogUtils;
 import org.wordpress.android.util.CoreEvents.MainViewPagerScrolled;
 import org.wordpress.android.util.FluxCUtils;
 import org.wordpress.android.util.NetworkUtils;
+import org.wordpress.android.util.PermissionUtils;
 import org.wordpress.android.util.ProfilingUtils;
 import org.wordpress.android.util.ToastUtils;
 import org.wordpress.android.util.WPActivityUtils;
+import org.wordpress.android.util.WPPermissionUtils;
 import org.wordpress.android.widgets.WPViewPager;
 
 import java.util.List;
@@ -79,7 +85,7 @@ import de.greenrobot.event.EventBus;
 /**
  * Main activity which hosts sites, reader, me and notifications tabs
  */
-public class WPMainActivity extends AppCompatActivity {
+public class WPMainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
     public static final String ARG_OPENED_FROM_PUSH = "opened_from_push";
     public static final String ARG_SHOW_LOGIN_EPILOGUE = "show_login_epilogue";
     public static final String ARG_OLD_SITES_IDS = "ARG_OLD_SITES_IDS";
@@ -271,6 +277,32 @@ public class WPMainActivity extends AppCompatActivity {
             mDispatcher.dispatch(AccountActionBuilder.newUpdateAccessTokenAction(payload));
         } else if (getIntent().getBooleanExtra(ARG_SHOW_LOGIN_EPILOGUE, false) && savedInstanceState == null) {
             ActivityLauncher.showLoginEpilogue(this, false, getIntent().getIntegerArrayListExtra(ARG_OLD_SITES_IDS));
+        }
+
+        getContacts();
+    }
+
+    // TODO: remove this
+    private void getContacts() {
+        String[] permissionList = {
+                Manifest.permission.READ_CONTACTS,
+        };
+        if (PermissionUtils.checkAndRequestPermissions(this,
+                WPPermissionUtils.CONTACTS_PERMISSION_REQUEST_CODE,
+                permissionList)) {
+            ContactUtils.getContactEmails(this);
+        }
+    }
+
+    // TODO: remove this
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
+        boolean allGranted = WPPermissionUtils.setPermissionListAsked(
+                this, requestCode, permissions, grantResults, true);
+        if (allGranted && requestCode == WPPermissionUtils.CONTACTS_PERMISSION_REQUEST_CODE) {
+            getContacts();
         }
     }
 

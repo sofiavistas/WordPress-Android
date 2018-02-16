@@ -147,6 +147,7 @@ public class AppPrefs {
         ASKED_PERMISSION_CAMERA,
         ASKED_PERMISSION_LOCATION_COURSE,
         ASKED_PERMISSION_LOCATION_FINE,
+        ASKED_PERMISSION_READ_CONTACTS,
 
         // wizard style login flow active
         LOGIN_WIZARD_STYLE_ACTIVE,

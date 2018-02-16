@@ -2025,6 +2025,7 @@
     <string name="permission_storage">Storage</string>
     <string name="permission_camera">Camera</string>
     <string name="permission_location">Location</string>
+    <string name="permission_contacts">Contacts</string>
 
     <!-- Video Optimization -->
     <string name="video_optimization_in_progress">Optimizing your video&#8230;</string>

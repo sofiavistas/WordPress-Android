@@ -1,5 +1,6 @@
 package org.wordpress.android.util;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -31,6 +32,7 @@ public class WPPermissionUtils {
     public static final int EDITOR_LOCATION_PERMISSION_REQUEST_CODE      = 50;
     public static final int EDITOR_MEDIA_PERMISSION_REQUEST_CODE         = 60;
     public static final int EDITOR_DRAG_DROP_PERMISSION_REQUEST_CODE     = 70;
+    public static final int CONTACTS_PERMISSION_REQUEST_CODE             = 80;
 
     /**
      * called by the onRequestPermissionsResult() of various activities and fragments - tracks
@@ -145,6 +147,8 @@ public class WPPermissionUtils {
                 return AppPrefs.UndeletablePrefKey.ASKED_PERMISSION_LOCATION_COURSE;
             case android.Manifest.permission.ACCESS_FINE_LOCATION:
                 return AppPrefs.UndeletablePrefKey.ASKED_PERMISSION_LOCATION_FINE;
+            case android.Manifest.permission.READ_CONTACTS:
+                return AppPrefs.UndeletablePrefKey.ASKED_PERMISSION_READ_CONTACTS;
             default:
                 AppLog.w(AppLog.T.UTILS, "No key for requested permission");
                 return null;
@@ -164,6 +168,8 @@ public class WPPermissionUtils {
             case android.Manifest.permission.ACCESS_COARSE_LOCATION:
             case android.Manifest.permission.ACCESS_FINE_LOCATION:
                 return context.getString(R.string.permission_location);
+            case android.Manifest.permission.READ_CONTACTS:
+                return context.getString(R.string.permission_contacts);
             default:
                 AppLog.w(AppLog.T.UTILS, "No name for requested permission");
                 return context.getString(R.string.unknown);
