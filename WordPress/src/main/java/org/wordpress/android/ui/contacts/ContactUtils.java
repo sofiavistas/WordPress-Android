@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 
 import org.wordpress.android.util.AppLog;
 
@@ -20,25 +19,21 @@ public class ContactUtils {
      */
     public static List<String> getContactEmails(@NonNull Context context) {
         ArrayList<String> emails = new ArrayList<String>();
-        ContentResolver cr = context.getContentResolver();
         try {
-            Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null);
-            if (cur.getCount() > 0) {
-                while (cur.moveToNext()) {
-                    String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
-                    Cursor cur1 = cr.query(
-                            ContactsContract.CommonDataKinds.Email.CONTENT_URI, null,
-                            ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?",
-                            new String[]{id}, null);
-                    while (cur1.moveToNext()) {
-                        String email = cur1.getString(cur1.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
-                        if (!TextUtils.isEmpty(email)) {
-                            emails.add(email);
-                        }
-                    }
-                    cur1.close();
-                }
+            ContentResolver cr = context.getContentResolver();
+            String[] PROJECTION = new String[] {
+                    ContactsContract.RawContacts._ID,
+                    ContactsContract.CommonDataKinds.Email.DATA};
+            String filter = ContactsContract.CommonDataKinds.Email.DATA + " NOT LIKE ''";
+            Cursor cur = cr.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, PROJECTION, filter, null, null);
+            if (cur.moveToFirst()) {
+                do {
+                    String email = cur.getString(1);
+                    emails.add(email);
+                } while (cur.moveToNext());
             }
+
+            cur.close();
         } catch (SecurityException e) {
             // no permission
             AppLog.e(AppLog.T.UTILS, e);
