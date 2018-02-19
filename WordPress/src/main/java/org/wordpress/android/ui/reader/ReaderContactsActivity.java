@@ -10,6 +10,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -41,6 +42,7 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
 
         setContentView(R.layout.reader_activity_contacts);
         mRecycler = findViewById(R.id.recycler);
+        mRecycler.setLayoutManager(new LinearLayoutManager(this));
         mRecycler.setAdapter(getAdapter());
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -137,10 +139,14 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
 
     private void loadUsers() {
         List<String> emailList = getContactEmails();
+        // TODO:
         ReaderUserList userList = new ReaderUserList();
+        long id = 0;
         for (String email: emailList) {
             ReaderUser user = new ReaderUser();
-            user.setUserName(email);
+            user.setDisplayName(email);
+            user.userId = id;
+            id++;
             userList.add(user);
         }
         getAdapter().setUsers(userList);
