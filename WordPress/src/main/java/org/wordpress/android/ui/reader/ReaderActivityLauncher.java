@@ -192,6 +192,14 @@ public class ReaderActivityLauncher {
     }
 
     /*
+     * show user's contacts on WordPress
+     */
+    public static void showReaderContacts(Context context) {
+        Intent intent = new Intent(context, ReaderContactsActivity.class);
+        context.startActivity(intent);
+    }
+
+    /*
      * play an external video
      */
     public static void showReaderVideoViewer(Context context, String videoUrl) {

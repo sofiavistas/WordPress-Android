@@ -411,6 +411,10 @@
             android:theme="@style/Calypso.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
         <activity
+            android:name=".ui.reader.ReaderContactsActivity"
+            android:label="@string/reader_title_contacts"
+            android:theme="@style/Calypso.NoActionBar" />
+        <activity
             android:name=".ui.reader.ReaderPhotoViewerActivity"
             android:theme="@style/ReaderMediaViewerTheme" />
         <activity

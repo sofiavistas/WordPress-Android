@@ -103,6 +103,7 @@ public class ReaderPostListFragment extends Fragment
     private SearchView mSearchView;
     private MenuItem mSettingsMenuItem;
     private MenuItem mSearchMenuItem;
+    private MenuItem mContactsMenuItem;
 
     private ReaderTag mCurrentTag;
     private long mCurrentBlogId;
@@ -542,18 +543,26 @@ public class ReaderPostListFragment extends Fragment
     }
 
     /*
-     * adds a menu to the recycler's toolbar containing settings & search items - only called
-     * for followed tags
+     * adds a menu to the recycler's toolbar - only called for followed tags
      */
     private void setupRecyclerToolbar() {
         Menu menu = mRecyclerView.addToolbarMenu(R.menu.reader_list);
         mSettingsMenuItem = menu.findItem(R.id.menu_reader_settings);
         mSearchMenuItem = menu.findItem(R.id.menu_reader_search);
+        mContactsMenuItem = menu.findItem(R.id.menu_reader_contacts);
 
         mSettingsMenuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 ReaderActivityLauncher.showReaderSubs(getActivity());
+                return true;
+            }
+        });
+
+        mContactsMenuItem.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                ReaderActivityLauncher.showReaderContacts(getActivity());
                 return true;
             }
         });

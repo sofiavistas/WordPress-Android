@@ -1362,6 +1362,7 @@
     <string name="reader_title_post_detail_wpcom">WordPress.com Post</string>
     <string name="reader_title_related_post_detail">Related Post</string>
     <string name="reader_title_subs">Tags &amp; Blogs</string>
+    <string name="reader_title_contacts">Contacts</string>
     <string name="reader_title_photo_viewer">%1$d of %2$d</string>
     <string name="reader_title_comments" translatable="false">@string/comments</string>
     <string name="reader_title_search_results">Search for %s</string>
@@ -1374,6 +1375,7 @@
     <!-- menu text -->
     <string name="reader_menu_tags">Edit tags and blogs</string>
     <string name="reader_menu_block_blog">Block this blog</string>
+    <string name="reader_menu_contacts">Find contacts to follow</string>
 
     <!-- button text -->
     <string name="reader_btn_share">Share</string>
@@ -1413,6 +1415,9 @@
     <string name="reader_label_visit">Visit</string>
     <string name="reader_photo_by">Photo by %s</string>
     <string name="reader_view_comments">View comments</string>
+    <string name="reader_label_find_contacts">Find contacts on WordPress.com</string>
+    <string name="reader_label_contacts_soft_ask">%s needs permissions to access your contacts</string>
+    <string name="reader_label_contacts_soft_ask_denied">%1$s was denied access to your contacts. To fix this, edit your permissions and turn on %2$s.</string>
 
     <string name="reader_excerpt_link">Visit %s for more</string>
 
