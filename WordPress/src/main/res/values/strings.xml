@@ -1417,6 +1417,7 @@
     <string name="reader_view_comments">View comments</string>
     <string name="reader_label_find_contacts">Find contacts on WordPress.com</string>
     <string name="reader_label_contacts_soft_ask">%s needs permissions to access your contacts</string>
+    <string name="reader_sublabel_find_contacts">Follow your contacts in the Reader</string>
     <string name="reader_label_contacts_soft_ask_denied">%1$s was denied access to your contacts. To fix this, edit your permissions and turn on %2$s.</string>
 
     <string name="reader_excerpt_link">Visit %s for more</string>

@@ -3,67 +3,83 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/white">
 
     <include layout="@layout/toolbar" />
 
-    <TextView
-        android:id="@+id/text_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/toolbar"
-        android:layout_margin="@dimen/margin_large"
-        android:text="@string/reader_label_find_contacts"
-        android:textSize="@dimen/text_sz_large"
-        android:textStyle="bold" />
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/text_label" />
+        android:layout_below="@+id/toolbar"
+        android:layout_margin="@dimen/margin_extra_large">
 
-    <LinearLayout
-        android:id="@+id/container_soft_ask"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:orientation="vertical"
-        android:visibility="gone"
-        tools:visibility="visible">
-
-        <ImageView
-            android:id="@+id/image_soft_ask"
-            android:layout_width="175dp"
-            android:layout_height="140dp"
-            android:layout_gravity="center_horizontal"
-            app:srcCompat="@drawable/ic_soft_ask_media" />
-
-        <org.wordpress.android.widgets.WPTextView
-            android:id="@+id/text_soft_ask_label"
+        <TextView
+            android:id="@+id/text_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginLeft="@dimen/margin_extra_extra_large"
-            android:layout_marginRight="@dimen/margin_extra_extra_large"
-            android:layout_marginTop="@dimen/margin_large"
-            android:gravity="center"
-            android:text="@string/reader_label_contacts_soft_ask"
-            android:textColor="@color/grey_dark"
-            android:textSize="@dimen/text_sz_large" />
-
-        <org.wordpress.android.widgets.WPTextView
-            android:id="@+id/text_soft_ask_allow"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:background="?android:selectableItemBackground"
-            android:padding="@dimen/margin_large"
-            android:text="@string/photo_picker_soft_ask_allow"
-            android:textAllCaps="true"
-            android:textColor="@color/blue_wordpress"
+            android:text="@string/reader_label_find_contacts"
             android:textSize="@dimen/text_sz_large"
             android:textStyle="bold" />
-    </LinearLayout>
+
+        <TextView
+            android:id="@+id/text_sublabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/text_label"
+            android:layout_marginTop="@dimen/margin_large"
+            android:text="@string/reader_sublabel_find_contacts"
+            android:textSize="@dimen/text_sz_large" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/text_sublabel"
+            android:layout_marginTop="@dimen/margin_large" />
+
+        <LinearLayout
+            android:id="@+id/container_soft_ask"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <ImageView
+                android:id="@+id/image_soft_ask"
+                android:layout_width="175dp"
+                android:layout_height="140dp"
+                android:layout_gravity="center_horizontal"
+                app:srcCompat="@drawable/ic_soft_ask_media" />
+
+            <org.wordpress.android.widgets.WPTextView
+                android:id="@+id/text_soft_ask_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginLeft="@dimen/margin_extra_extra_large"
+                android:layout_marginRight="@dimen/margin_extra_extra_large"
+                android:layout_marginTop="@dimen/margin_large"
+                android:gravity="center"
+                android:text="@string/reader_label_contacts_soft_ask"
+                android:textColor="@color/grey_dark"
+                android:textSize="@dimen/text_sz_large" />
+
+            <org.wordpress.android.widgets.WPTextView
+                android:id="@+id/text_soft_ask_allow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:background="?android:selectableItemBackground"
+                android:padding="@dimen/margin_large"
+                android:text="@string/photo_picker_soft_ask_allow"
+                android:textAllCaps="true"
+                android:textColor="@color/blue_wordpress"
+                android:textSize="@dimen/text_sz_large"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </RelativeLayout>
 
 </RelativeLayout>

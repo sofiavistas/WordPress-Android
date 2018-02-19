@@ -18,6 +18,9 @@ import android.view.View;
 import android.widget.TextView;
 
 import org.wordpress.android.R;
+import org.wordpress.android.models.ReaderUser;
+import org.wordpress.android.models.ReaderUserList;
+import org.wordpress.android.ui.reader.adapters.ReaderUserAdapter;
 import org.wordpress.android.util.AniUtils;
 import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.PermissionUtils;
@@ -29,9 +32,8 @@ import java.util.List;
 public class ReaderContactsActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     private RecyclerView mRecycler;
-    private static final String[] permissionList = {
-            Manifest.permission.READ_CONTACTS,
-    };
+    private ReaderUserAdapter mAdapter;
+    private static final String[] permissionList = { Manifest.permission.READ_CONTACTS };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -39,6 +41,7 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
 
         setContentView(R.layout.reader_activity_contacts);
         mRecycler = findViewById(R.id.recycler);
+        mRecycler.setAdapter(getAdapter());
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -48,7 +51,19 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        checkPermissions();
+        boolean hasPermission = PermissionUtils.checkPermissions(this, permissionList);
+        if (hasPermission) {
+            loadUsers();
+        } else {
+            showSoftAskView(true);
+        }
+    }
+
+    private ReaderUserAdapter getAdapter() {
+        if (mAdapter == null) {
+            mAdapter = new ReaderUserAdapter(this);
+        }
+        return mAdapter;
     }
 
     @Override
@@ -60,11 +75,9 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
         return super.onOptionsItemSelected(item);
     }
 
-    private void checkPermissions() {
+    private void showSoftAskView(boolean show) {
         View softAskContainer = findViewById(R.id.container_soft_ask);
-        boolean hasPermission = PermissionUtils.checkPermissions(this, permissionList);
-
-        if (hasPermission) {
+        if (!show) {
             if (softAskContainer.getVisibility() == View.VISIBLE) {
                 AniUtils.fadeOut(softAskContainer, AniUtils.Duration.MEDIUM);
             }
@@ -117,17 +130,27 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
         boolean allGranted = WPPermissionUtils.setPermissionListAsked(
                 this, requestCode, permissions, grantResults, true);
         if (allGranted && requestCode == WPPermissionUtils.CONTACTS_PERMISSION_REQUEST_CODE) {
-            checkPermissions();
-            getContactEmails();
+            showSoftAskView(false);
+            loadUsers();
         }
     }
 
+    private void loadUsers() {
+        List<String> emailList = getContactEmails();
+        ReaderUserList userList = new ReaderUserList();
+        for (String email: emailList) {
+            ReaderUser user = new ReaderUser();
+            user.setUserName(email);
+            userList.add(user);
+        }
+        getAdapter().setUsers(userList);
+    }
+
     /*
-     * returns a list of email addresses from the device's address book - note that the caller
-     * should first ensure the app has permission to access contacts
+     * returns a list of email addresses from the device's address book
      */
     private List<String> getContactEmails() {
-        ArrayList<String> emails = new ArrayList<>();
+        ArrayList<String> emailList = new ArrayList<>();
         try {
             ContentResolver cr = getContentResolver();
             String[] PROJECTION = new String[] {
@@ -139,7 +162,7 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
                 do {
                     // TODO: should we ensure unique emails?
                     String email = cur.getString(1);
-                    emails.add(email);
+                    emailList.add(email);
                 } while (cur.moveToNext());
                 cur.close();
             }
@@ -147,6 +170,6 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
             // no permission
             AppLog.e(AppLog.T.UTILS, e);
         }
-        return emails;
+        return emailList;
     }
 }
