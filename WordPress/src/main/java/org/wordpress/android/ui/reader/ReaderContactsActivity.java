@@ -27,14 +27,13 @@ import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.PermissionUtils;
 import org.wordpress.android.util.WPPermissionUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 
 public class ReaderContactsActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     private RecyclerView mRecycler;
     private ReaderUserAdapter mAdapter;
-    private static final String[] permissionList = { Manifest.permission.READ_CONTACTS };
+    private static final String[] mPermissions = { Manifest.permission.READ_CONTACTS };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,8 +52,7 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
-        boolean hasPermission = PermissionUtils.checkPermissions(this, permissionList);
-        if (hasPermission) {
+        if (PermissionUtils.checkPermissions(this, mPermissions)) {
             loadUsers();
         } else {
             showSoftAskView(true);
@@ -122,7 +120,7 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
     }
 
     private void requestPermission() {
-        requestPermissions(permissionList, WPPermissionUtils.CONTACTS_PERMISSION_REQUEST_CODE);
+        requestPermissions(mPermissions, WPPermissionUtils.CONTACTS_PERMISSION_REQUEST_CODE);
     }
 
     @Override
@@ -138,8 +136,8 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
     }
 
     private void loadUsers() {
-        List<String> emailList = getContactEmails();
-        // TODO:
+        HashSet<String> emailList = getContactEmails();
+        // TODO: this is dummy date, need to send email list to backend to get actual users
         ReaderUserList userList = new ReaderUserList();
         long id = 0;
         for (String email: emailList) {
@@ -153,10 +151,10 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
     }
 
     /*
-     * returns a list of email addresses from the device's address book
+     * returns a list of unique email addresses from the device's address book
      */
-    private List<String> getContactEmails() {
-        ArrayList<String> emailList = new ArrayList<>();
+    private HashSet<String> getContactEmails() {
+        HashSet<String> emailList = new HashSet<>();
         try {
             ContentResolver cr = getContentResolver();
             String[] PROJECTION = new String[] {
@@ -166,7 +164,6 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
             Cursor cur = cr.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, PROJECTION, filter, null, null);
             if (cur != null && cur.moveToFirst()) {
                 do {
-                    // TODO: should we ensure unique emails?
                     String email = cur.getString(1);
                     emailList.add(email);
                 } while (cur.moveToNext());
