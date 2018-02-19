@@ -82,12 +82,14 @@ public class PluginBrowserActivity extends AppCompatActivity
         if (actionBar != null) {
             actionBar.setHomeButtonEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setElevation(0);
         }
 
         if (savedInstanceState == null) {
             mViewModel.setSite((SiteModel) getIntent().getSerializableExtra(WordPress.SITE));
+        } else {
+            mViewModel.readFromBundle(savedInstanceState);
         }
+        mViewModel.start();
 
         if (mViewModel.getSite() == null) {
             ToastUtils.showToast(this, R.string.blog_not_found);
@@ -132,8 +134,13 @@ public class PluginBrowserActivity extends AppCompatActivity
         configureRecycler(mPopularPluginsRecycler);
         configureRecycler(mNewPluginsRecycler);
 
-        mViewModel.start();
         setupObservers();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        mViewModel.writeToBundle(outState);
     }
 
     private void setupObservers() {
