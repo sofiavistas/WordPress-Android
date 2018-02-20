@@ -28,7 +28,9 @@ import org.wordpress.android.util.GravatarUtils;
 import org.wordpress.android.util.PermissionUtils;
 import org.wordpress.android.util.WPPermissionUtils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 public class ReaderContactsActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
@@ -141,7 +143,7 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
     }
 
     private void loadUsers() {
-        HashSet<String> emailList = getContactEmails();
+        List<String> emailList = getContactEmails();
         // TODO: this is dummy date, need to send email list to backend to get actual users
         ReaderUserList userList = new ReaderUserList();
         long id = 0;
@@ -161,20 +163,22 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
     /*
      * returns a list of unique email addresses from the device's address book
      */
-    private HashSet<String> getContactEmails() {
-        HashSet<String> emailList = new HashSet<>();
+    private List<String> getContactEmails() {
+        HashSet<String> hashList = new HashSet<>();
+        List<String> emailList = new ArrayList<>();
         try {
             ContentResolver cr = getContentResolver();
-            String[] PROJECTION = new String[] {
-                    ContactsContract.RawContacts._ID,
-                    ContactsContract.CommonDataKinds.Email.DATA};
+            String[] projection = new String[] { ContactsContract.CommonDataKinds.Email.DATA };
+            String sortOrder = ContactsContract.CommonDataKinds.Email.DATA + " COLLATE LOCALIZED ASC";
             String filter = ContactsContract.CommonDataKinds.Email.DATA + " NOT LIKE ''";
-            Cursor cur = cr.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, PROJECTION, filter, null, null);
-            if (cur != null && cur.moveToFirst()) {
-                do {
-                    String email = cur.getString(1);
-                    emailList.add(email);
-                } while (cur.moveToNext());
+            Cursor cur = cr.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, projection, filter, null, sortOrder);
+            if (cur != null) {
+                while (cur.moveToNext()) {
+                    String email = cur.getString(0);
+                    if (hashList.add(email)) {
+                        emailList.add(email);
+                    }
+                }
                 cur.close();
             }
         } catch (SecurityException e) {
