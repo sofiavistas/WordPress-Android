@@ -24,6 +24,7 @@ import org.wordpress.android.models.ReaderUserList;
 import org.wordpress.android.ui.reader.adapters.ReaderUserAdapter;
 import org.wordpress.android.util.AniUtils;
 import org.wordpress.android.util.AppLog;
+import org.wordpress.android.util.GravatarUtils;
 import org.wordpress.android.util.PermissionUtils;
 import org.wordpress.android.util.WPPermissionUtils;
 
@@ -119,6 +120,10 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
         softAskContainer.setVisibility(View.VISIBLE);
     }
 
+    private void showEmptyView(boolean show) {
+        findViewById(R.id.text_empty).setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
     private void requestPermission() {
         requestPermissions(mPermissions, WPPermissionUtils.CONTACTS_PERMISSION_REQUEST_CODE);
     }
@@ -140,14 +145,17 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
         // TODO: this is dummy date, need to send email list to backend to get actual users
         ReaderUserList userList = new ReaderUserList();
         long id = 0;
+        int size = getResources().getDimensionPixelSize(R.dimen.avatar_sz_small);
         for (String email: emailList) {
             ReaderUser user = new ReaderUser();
             user.setDisplayName(email);
             user.userId = id;
+            user.setAvatarUrl(GravatarUtils.gravatarFromEmail(email, size));
             id++;
             userList.add(user);
         }
         getAdapter().setUsers(userList);
+        showEmptyView(userList.isEmpty());
     }
 
     /*

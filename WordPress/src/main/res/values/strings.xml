@@ -1415,9 +1415,9 @@
     <string name="reader_label_visit">Visit</string>
     <string name="reader_photo_by">Photo by %s</string>
     <string name="reader_view_comments">View comments</string>
-    <string name="reader_label_find_contacts">Find contacts on WordPress.com</string>
+    <string name="reader_label_find_contacts">WordPress is better with friends!</string>
     <string name="reader_label_contacts_soft_ask">%s needs permissions to access your contacts</string>
-    <string name="reader_sublabel_find_contacts">Follow your contacts in the Reader</string>
+    <string name="reader_sublabel_find_contacts">Find and follow your contacts in the WordPress Reader</string>
     <string name="reader_label_contacts_soft_ask_denied">%1$s was denied access to your contacts. To fix this, edit your permissions and turn on %2$s.</string>
 
     <string name="reader_excerpt_link">Visit %s for more</string>
@@ -1490,6 +1490,7 @@
     <string name="reader_empty_posts_in_blog">This blog is empty</string>
     <string name="reader_empty_posts_in_search_title">No posts found</string>
     <string name="reader_empty_posts_in_search_description">No posts found for %s for your language</string>
+    <string name="reader_empty_contacts">Sorry, we couldn\'t find any WordPress.com users from your contacts</string>
 
     <string name="dlg_confirm_clear_search_history">Clear search history?</string>
     <string name="label_clear_search_history">Clear search history</string>
