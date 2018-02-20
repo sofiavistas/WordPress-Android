@@ -18,6 +18,7 @@ import org.wordpress.android.util.SqlUtils;
 import org.wordpress.android.util.UrlUtils;
 
 import java.util.Date;
+import java.util.HashSet;
 
 /**
  * tbl_blog_info contains information about blogs viewed in the reader, and blogs the
@@ -213,6 +214,24 @@ public class ReaderBlogTable {
                 } while (c.moveToNext());
             }
             return urls;
+        } finally {
+            SqlUtils.closeCursor(c);
+        }
+    }
+
+    /*
+     * return HashSet of IDs of followed blogs
+     */
+    public static HashSet<Long> getFollowedBlogIds() {
+        Cursor c = ReaderDatabase.getReadableDb().rawQuery("SELECT DISTINCT blog_id FROM tbl_blog_info WHERE is_following!=0", null);
+        try {
+            HashSet<Long> ids = new HashSet<>();
+            if (c.moveToFirst()) {
+                do {
+                    ids.add(c.getLong(0));
+                } while (c.moveToNext());
+            }
+            return ids;
         } finally {
             SqlUtils.closeCursor(c);
         }

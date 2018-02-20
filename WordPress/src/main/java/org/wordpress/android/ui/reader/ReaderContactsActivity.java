@@ -2,7 +2,6 @@ package org.wordpress.android.ui.reader;
 
 import android.Manifest;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -23,8 +22,6 @@ import android.widget.TextView;
 
 import org.wordpress.android.R;
 import org.wordpress.android.datasets.ReaderBlogTable;
-import org.wordpress.android.datasets.ReaderPostTable;
-import org.wordpress.android.models.ReaderPost;
 import org.wordpress.android.models.ReaderUser;
 import org.wordpress.android.models.ReaderUserList;
 import org.wordpress.android.ui.reader.actions.ReaderActions;
@@ -48,6 +45,7 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
     private RecyclerView mRecycler;
     private UserAdapter mAdapter;
     private int mAvatarSz;
+    private final HashSet<Long> mFollowedBlogIds = new HashSet<>();
     private static final String[] mPermissions = { Manifest.permission.READ_CONTACTS };
 
     @Override
@@ -68,6 +66,8 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
             actionBar.setDisplayShowTitleEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+
+        mFollowedBlogIds.addAll(ReaderBlogTable.getFollowedBlogIds());
 
         if (PermissionUtils.checkPermissions(this, mPermissions)) {
             loadUsers();
@@ -203,12 +203,16 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
         return emailList;
     }
 
+    private boolean isFollowedBlogId(Long blogId) {
+        return mFollowedBlogIds.contains(blogId);
+    }
+
     private void toggleFollow(final ReaderFollowButton followButton, final long blogId) {
-        if (!NetworkUtils.checkConnection(this)) {
+        if (!NetworkUtils.checkConnection(this) || blogId == 0) {
             return;
         }
 
-        boolean isCurrentlyFollowed = ReaderBlogTable.isFollowedBlog(blogId);
+        boolean isCurrentlyFollowed = isFollowedBlogId(blogId);
         final boolean isAskingToFollow = !isCurrentlyFollowed;
 
         ReaderActions.ActionListener actionListener = new ReaderActions.ActionListener() {
@@ -220,17 +224,24 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
                     followButton.setIsFollowedAnimated(!isAskingToFollow);
                     int resId = (isAskingToFollow ? R.string.reader_toast_err_follow_blog : R.string.reader_toast_err_unfollow_blog);
                     ToastUtils.showToast(ReaderContactsActivity.this, resId);
+                    if (isAskingToFollow) {
+                        mFollowedBlogIds.remove(blogId);
+                    } else {
+                        mFollowedBlogIds.add(blogId);
+                    }
                 }
             }
         };
 
-        if (!ReaderBlogActions.followBlogById(blogId, isAskingToFollow, actionListener)) {
-            ToastUtils.showToast(this, R.string.reader_toast_err_generic);
-            return;
-        }
-
+        ReaderBlogActions.followBlogById(blogId, isAskingToFollow, actionListener);
         followButton.setIsFollowedAnimated(isAskingToFollow);
         followButton.setEnabled(false);
+
+        if (isAskingToFollow) {
+            mFollowedBlogIds.add(blogId);
+        } else {
+            mFollowedBlogIds.remove(blogId);
+        }
     }
 
     class UserAdapter extends RecyclerView.Adapter<UserViewHolder> {
@@ -259,7 +270,7 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
             holder.txtName.setText(user.getDisplayName());
             holder.txtUrl.setText(user.getUrlDomain());
 
-            boolean isFollowing = ReaderBlogTable.isFollowedBlog(user.blogId);
+            boolean isFollowing = isFollowedBlogId(user.blogId);
             holder.btnFollow.setIsFollowed(isFollowing);
 
             if (user.hasAvatarUrl()) {
