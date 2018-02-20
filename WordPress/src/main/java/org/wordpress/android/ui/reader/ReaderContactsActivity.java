@@ -2,6 +2,7 @@ package org.wordpress.android.ui.reader;
 
 import android.Manifest;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -21,12 +22,20 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import org.wordpress.android.R;
+import org.wordpress.android.datasets.ReaderBlogTable;
+import org.wordpress.android.datasets.ReaderPostTable;
+import org.wordpress.android.models.ReaderPost;
 import org.wordpress.android.models.ReaderUser;
 import org.wordpress.android.models.ReaderUserList;
+import org.wordpress.android.ui.reader.actions.ReaderActions;
+import org.wordpress.android.ui.reader.actions.ReaderBlogActions;
+import org.wordpress.android.ui.reader.views.ReaderFollowButton;
 import org.wordpress.android.util.AniUtils;
 import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.GravatarUtils;
+import org.wordpress.android.util.NetworkUtils;
 import org.wordpress.android.util.PermissionUtils;
+import org.wordpress.android.util.ToastUtils;
 import org.wordpress.android.util.WPPermissionUtils;
 import org.wordpress.android.widgets.WPNetworkImageView;
 
@@ -157,6 +166,7 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
             user.setDisplayName(email);
             user.userId = id;
             user.blogId = 52451191;
+            user.setUrl("https://www.nickbradbury.com/");
             user.setAvatarUrl(GravatarUtils.gravatarFromEmail(email, mAvatarSz));
             id++;
             userList.add(user);
@@ -193,6 +203,36 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
         return emailList;
     }
 
+    private void toggleFollow(final ReaderFollowButton followButton, final long blogId) {
+        if (!NetworkUtils.checkConnection(this)) {
+            return;
+        }
+
+        boolean isCurrentlyFollowed = ReaderBlogTable.isFollowedBlog(blogId);
+        final boolean isAskingToFollow = !isCurrentlyFollowed;
+
+        ReaderActions.ActionListener actionListener = new ReaderActions.ActionListener() {
+            @Override
+            public void onActionResult(boolean succeeded) {
+                if (isFinishing()) return;
+                followButton.setEnabled(true);
+                if (!succeeded) {
+                    followButton.setIsFollowedAnimated(!isAskingToFollow);
+                    int resId = (isAskingToFollow ? R.string.reader_toast_err_follow_blog : R.string.reader_toast_err_unfollow_blog);
+                    ToastUtils.showToast(ReaderContactsActivity.this, resId);
+                }
+            }
+        };
+
+        if (!ReaderBlogActions.followBlogById(blogId, isAskingToFollow, actionListener)) {
+            ToastUtils.showToast(this, R.string.reader_toast_err_generic);
+            return;
+        }
+
+        followButton.setIsFollowedAnimated(isAskingToFollow);
+        followButton.setEnabled(false);
+    }
+
     class UserAdapter extends RecyclerView.Adapter<UserViewHolder> {
         private final ReaderUserList mUsers = new ReaderUserList();
 
@@ -208,16 +248,19 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
 
         @Override
         public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.reader_listitem_user, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.contact_listitem, parent, false);
             return new UserViewHolder(view);
         }
 
         @Override
         public void onBindViewHolder(UserViewHolder holder, int position) {
-            ReaderUser user = mUsers.get(position);
+            ReaderUser user = getItem(position);
 
             holder.txtName.setText(user.getDisplayName());
             holder.txtUrl.setText(user.getUrlDomain());
+
+            boolean isFollowing = ReaderBlogTable.isFollowedBlog(user.blogId);
+            holder.btnFollow.setIsFollowed(isFollowing);
 
             if (user.hasAvatarUrl()) {
                 holder.imgAvatar.setImageUrl(
@@ -246,23 +289,44 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
     class UserViewHolder extends RecyclerView.ViewHolder {
         private final TextView txtName;
         private final TextView txtUrl;
+        private final ReaderFollowButton btnFollow;
         private final WPNetworkImageView imgAvatar;
 
         public UserViewHolder(View view) {
             super(view);
+
             txtName = view.findViewById(R.id.text_name);
             txtUrl = view.findViewById(R.id.text_url);
             imgAvatar = view.findViewById(R.id.image_avatar);
+            btnFollow = view.findViewById(R.id.follow_button);
+
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     int position = getAdapterPosition();
-                    ReaderUser user = getAdapter().getItem(position);
-                    ReaderActivityLauncher.showReaderBlogPreview(
-                            v.getContext(),
-                            user.blogId);
+                    if (isValidPosition(position)) {
+                        ReaderUser user = getAdapter().getItem(position);
+                        ReaderActivityLauncher.showReaderBlogPreview(
+                                v.getContext(),
+                                user.blogId);
+                    }
                 }
             });
+
+            btnFollow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    if (isValidPosition(position)) {
+                        long blogId = getAdapter().getItem(position).blogId;
+                        toggleFollow(btnFollow, blogId);
+                    }
+                }
+            });
+        }
+
+        boolean isValidPosition(int position) {
+            return position >= 0 && position < getAdapter().getItemCount();
         }
     }
 }
