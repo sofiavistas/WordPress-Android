@@ -14,19 +14,21 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import org.wordpress.android.R;
 import org.wordpress.android.models.ReaderUser;
 import org.wordpress.android.models.ReaderUserList;
-import org.wordpress.android.ui.reader.adapters.ReaderUserAdapter;
 import org.wordpress.android.util.AniUtils;
 import org.wordpress.android.util.AppLog;
 import org.wordpress.android.util.GravatarUtils;
 import org.wordpress.android.util.PermissionUtils;
 import org.wordpress.android.util.WPPermissionUtils;
+import org.wordpress.android.widgets.WPNetworkImageView;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -35,7 +37,8 @@ import java.util.List;
 public class ReaderContactsActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     private RecyclerView mRecycler;
-    private ReaderUserAdapter mAdapter;
+    private UserAdapter mAdapter;
+    private int mAvatarSz;
     private static final String[] mPermissions = { Manifest.permission.READ_CONTACTS };
 
     @Override
@@ -46,6 +49,8 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
         mRecycler = findViewById(R.id.recycler);
         mRecycler.setLayoutManager(new LinearLayoutManager(this));
         mRecycler.setAdapter(getAdapter());
+
+        mAvatarSz = getResources().getDimensionPixelSize(R.dimen.avatar_sz_small);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -62,9 +67,9 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
         }
     }
 
-    private ReaderUserAdapter getAdapter() {
+    private UserAdapter getAdapter() {
         if (mAdapter == null) {
-            mAdapter = new ReaderUserAdapter(this);
+            mAdapter = new UserAdapter();
         }
         return mAdapter;
     }
@@ -147,12 +152,12 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
         // TODO: this is dummy date, need to send email list to backend to get actual users
         ReaderUserList userList = new ReaderUserList();
         long id = 0;
-        int size = getResources().getDimensionPixelSize(R.dimen.avatar_sz_small);
         for (String email: emailList) {
             ReaderUser user = new ReaderUser();
             user.setDisplayName(email);
             user.userId = id;
-            user.setAvatarUrl(GravatarUtils.gravatarFromEmail(email, size));
+            user.blogId = 52451191;
+            user.setAvatarUrl(GravatarUtils.gravatarFromEmail(email, mAvatarSz));
             id++;
             userList.add(user);
         }
@@ -161,7 +166,7 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
     }
 
     /*
-     * returns a list of unique email addresses from the device's address book
+     * returns a sorted list of unique email addresses from the device's contacts
      */
     private List<String> getContactEmails() {
         HashSet<String> hashList = new HashSet<>();
@@ -186,5 +191,78 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
             AppLog.e(AppLog.T.UTILS, e);
         }
         return emailList;
+    }
+
+    class UserAdapter extends RecyclerView.Adapter<UserViewHolder> {
+        private final ReaderUserList mUsers = new ReaderUserList();
+
+        public UserAdapter() {
+            setHasStableIds(true);
+        }
+
+        private void setUsers(@NonNull ReaderUserList users) {
+            mUsers.clear();
+            mUsers.addAll(users);
+            notifyDataSetChanged();
+        }
+
+        @Override
+        public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.reader_listitem_user, parent, false);
+            return new UserViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(UserViewHolder holder, int position) {
+            ReaderUser user = mUsers.get(position);
+
+            holder.txtName.setText(user.getDisplayName());
+            holder.txtUrl.setText(user.getUrlDomain());
+
+            if (user.hasAvatarUrl()) {
+                holder.imgAvatar.setImageUrl(
+                        GravatarUtils.fixGravatarUrl(user.getAvatarUrl(), mAvatarSz),
+                        WPNetworkImageView.ImageType.AVATAR);
+            } else {
+                holder.imgAvatar.showDefaultGravatarImageAndNullifyUrl();
+            }
+        }
+
+        ReaderUser getItem(int position) {
+            return mUsers.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return mUsers.get(position).userId;
+        }
+
+        @Override
+        public int getItemCount() {
+            return mUsers.size();
+        }
+    }
+
+    class UserViewHolder extends RecyclerView.ViewHolder {
+        private final TextView txtName;
+        private final TextView txtUrl;
+        private final WPNetworkImageView imgAvatar;
+
+        public UserViewHolder(View view) {
+            super(view);
+            txtName = view.findViewById(R.id.text_name);
+            txtUrl = view.findViewById(R.id.text_url);
+            imgAvatar = view.findViewById(R.id.image_avatar);
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    int position = getAdapterPosition();
+                    ReaderUser user = getAdapter().getItem(position);
+                    ReaderActivityLauncher.showReaderBlogPreview(
+                            v.getContext(),
+                            user.blogId);
+                }
+            });
+        }
     }
 }
