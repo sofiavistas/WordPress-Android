@@ -141,7 +141,7 @@ public class ReaderContactsActivity extends AppCompatActivity implements Activit
     }
 
     private void requestPermission() {
-        requestPermissions(mPermissions, WPPermissionUtils.CONTACTS_PERMISSION_REQUEST_CODE);
+        ActivityCompat.requestPermissions(this, mPermissions, WPPermissionUtils.CONTACTS_PERMISSION_REQUEST_CODE);
     }
 
     @Override
