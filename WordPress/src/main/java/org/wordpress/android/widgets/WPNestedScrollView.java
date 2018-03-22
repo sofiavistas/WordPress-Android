@@ -1950,7 +1950,6 @@ public class WPNestedScrollView extends FrameLayout implements NestedScrollingPa
             }
             switch (action) {
                 case AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD: {
-                    nsvHost.mLastScrollerY = -1;
                     nsvHost.startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
                     final int viewportHeight = nsvHost.getHeight() - nsvHost.getPaddingBottom()
                                                - nsvHost.getPaddingTop();
@@ -1963,7 +1962,6 @@ public class WPNestedScrollView extends FrameLayout implements NestedScrollingPa
                 }
                 return false;
                 case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD: {
-                    nsvHost.mLastScrollerY = -1;
                     nsvHost.startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
                     final int viewportHeight = nsvHost.getHeight() - nsvHost.getPaddingBottom()
                                                - nsvHost.getPaddingTop();
