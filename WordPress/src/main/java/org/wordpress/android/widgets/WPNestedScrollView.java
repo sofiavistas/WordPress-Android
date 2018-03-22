@@ -1455,7 +1455,7 @@ public class WPNestedScrollView extends FrameLayout implements NestedScrollingPa
             final int x = mScroller.getCurrX();
             final int y = mScroller.getCurrY();
 
-            int dy = y - mLastScrollerY;
+            int dy = mLastScrollerY == -1 ? 0 : y - mLastScrollerY;
 
             // Dispatch up to parent
             if (dispatchNestedPreScroll(0, dy, mScrollConsumed, null, ViewCompat.TYPE_NON_TOUCH)) {
@@ -1496,7 +1496,7 @@ public class WPNestedScrollView extends FrameLayout implements NestedScrollingPa
                 stopNestedScroll(ViewCompat.TYPE_NON_TOUCH);
             }
             // and reset the scroller y
-            mLastScrollerY = 0;
+            mLastScrollerY = -1;
         }
     }
 
@@ -1950,6 +1950,8 @@ public class WPNestedScrollView extends FrameLayout implements NestedScrollingPa
             }
             switch (action) {
                 case AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD: {
+                    nsvHost.mLastScrollerY = -1;
+                    nsvHost.startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
                     final int viewportHeight = nsvHost.getHeight() - nsvHost.getPaddingBottom()
                                                - nsvHost.getPaddingTop();
                     final int targetScrollY = Math.min(nsvHost.getScrollY() + viewportHeight,
@@ -1961,6 +1963,8 @@ public class WPNestedScrollView extends FrameLayout implements NestedScrollingPa
                 }
                 return false;
                 case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD: {
+                    nsvHost.mLastScrollerY = -1;
+                    nsvHost.startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
                     final int viewportHeight = nsvHost.getHeight() - nsvHost.getPaddingBottom()
                                                - nsvHost.getPaddingTop();
                     final int targetScrollY = Math.max(nsvHost.getScrollY() - viewportHeight, 0);

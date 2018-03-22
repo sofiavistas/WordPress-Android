@@ -206,7 +206,7 @@
     </LinearLayout>
 
 
-    <android.support.v4.widget.NestedScrollView
+    <org.wordpress.android.widgets.WPNestedScrollView
         android:id="@+id/connect_jetpack"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -240,5 +240,5 @@
                 android:text="@string/stats_jetpack_connection_setup"
                 android:theme="@style/JetpackConnectionButton"/>
         </LinearLayout>
-    </android.support.v4.widget.NestedScrollView>
+    </org.wordpress.android.widgets.WPNestedScrollView>
 </android.support.design.widget.CoordinatorLayout>
